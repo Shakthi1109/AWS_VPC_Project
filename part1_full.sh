@@ -110,4 +110,20 @@ aws ec2 authorize-security-group-ingress --group-id $sec_grp_id1 --protocol tcp 
 #Create Key Pair
 aws ec2 create-key-pair --key-name cli-keyPair --query 'KeyMaterial' --output text > cli-keyPair.pem --region $AWS_REGION
 
+aws ec2 modify-vpc-attribute --vpc-id $vpc_id --enable-dns-hostnames
 chmod 400 cli-keyPair.pem
+
+echo "Creating an instance for web server"
+web_instance_id=$(aws ec2 run-instances --image-id ami-0533f2ba8a1995cf9 --instance-type t2.micro --count 1 --subnet-id $public_subnet_id --security-group-ids $sec_grp_id1 --associate-public-ip-address --key-name cli-keyPair --query 'Instances[0].InstanceId' --output text)
+
+echo "Waiting for instance $web_instance_id to be created and launched"
+
+sleep 200
+
+web_public_dns=$(aws ec2 describe-instances --instance-ids=$web_instance_id --query 'Reservations[].Instances[].PublicDnsName')
+echo $web_public_dns
+web_instance_dns=$(echo $web_public_dns | tr -d '[" ]')
+
+echo "Web instance dns: $web_instance_dns"
+
+ssh -i "cli-keyPair.pem" ec2-user@$web_instance_dns 'bash -s' < install_apache.sh
