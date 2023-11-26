@@ -1,12 +1,11 @@
-#!/bin/bash
-
+#!/bin/sh
 
 # Updating packages
 sudo apt update -y
 sudo apt upgrade -y
 
 # Installing apache server
-sudo apt install apache2 -y
+sudo apt install -y httpd
 
 # Creating an index.html file for apache main page
 cat <<EOF > index.html
@@ -19,17 +18,23 @@ cat <<EOF > index.html
 </html>
 EOF
 
+
+
 sudo mv index.html /var/www/html/index.html
 # Giving permissions to the file so Apache can have access to it
 sudo chmod 777 /var/www/html/index.html
 
 # Running the server
-sudo systemctl start apache2
+sudo service httpd start
 
 
 # Installation Snort
 # https://www.snort.org/documents#OfficialDocumentation
 sudo apt install snort -y
+
+# Snort IDS mode
+# Possible to change config in cmd line with --lua
+snort -c /etc/snort/snort.lua -r /var/www/dvwa
 
 # Snort SQL Injection detection
 # https://www.hackingarticles.in/detect-sql-injection-attack-using-snort-ids/
@@ -42,4 +47,3 @@ alert tcp any any -> any any (msg:”Possible Boolean-based Blind SQL Injection 
 alert tcp any any -> any 80 (msg:”Possible SQL Injection — UNION keyword detected”; flow:to_server,established; content:”UNION”; nocase; http_uri; sid:1000003;)
 alert tcp any any -> any 80 (msg:”Possible Manual Injection detected”; flow:to_server,established; content:”GET”; http_method; content:”?parameter=malicious_keyword”; http_uri; sid:1000004;)
 
-sudo service snort restart

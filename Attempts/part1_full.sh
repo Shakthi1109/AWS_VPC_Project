@@ -108,28 +108,35 @@ echo "authorize security group"
 aws ec2 authorize-security-group-ingress --group-id $sec_grp_id1 --protocol tcp --port 80 --cidr 0.0.0.0/0 --region $AWS_REGION
 
 #Create Key Pair
-ssh-keygen -t rsa -b 2048 -f ~/.ssh/cli-keyPair
-aws ec2 import-key-pair --key-name cli-keyPair --public-key-material fileb://~/.ssh/cli-keyPair.pub > /dev/null
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/cli-keyPair3
+aws ec2 import-key-pair \
+    --key-name cli-keyPair3 \
+    --public-key-material fileb://~/.ssh/cli-keyPair3.pub > /dev/null
+
+
+# aws ec2 create-key-pair --key-name cli-keyPair --query 'KeyMaterial' --output text > cli-keyPair.pem --region $AWS_REGION
+# aws ec2 modify-vpc-attribute --vpc-id $vpc_id --enable-dns-hostnames
+
+# chmod 400 cli-keyPair3.pem
 
 echo "Creating an instance for web server"
-web_instance_id=$(aws ec2 run-instances --image-id ami-0fc5d935ebf8bc3bc --instance-type t2.micro --count 1 --subnet-id $public_subnet_id --security-group-ids $sec_grp_id1 --associate-public-ip-address --key-name cli-keyPair --query 'Instances[0].InstanceId' --output text)
+web_instance_id=$(aws ec2 run-instances --image-id ami-0fc5d935ebf8bc3bc --instance-type t2.micro --count 1 --subnet-id $public_subnet_id --security-group-ids $sec_grp_id1 --associate-public-ip-address --key-name cli-keyPair3 --query 'Instances[0].InstanceId' --output text)
 
 echo "Waiting for instance $web_instance_id to be created and launched"
-while true; do
 
-	web_status=`aws ec2 describe-instance-status --instance-ids $web_instance_id --query 'InstanceStatuses[0].InstanceState.Name' --output text`
-    echo "Web status: $web_status"
+sleep 200
 
-    if [ "$web_status" == "running" ]; then
-        sleep 20
+# web_public_dns=$(aws ec2 describe-instances --instance-ids=$web_instance_id --query 'Reservations[].Instances[].PublicDnsName')
 
-		web_ip=`aws ec2 describe-instances --instance-ids $web_instance_id --query "Reservations[0].Instances[0].PublicIpAddress" | grep -Eo "[0-9.]+"`
-        echo "Web IP: $web_ip"
 
-        scp -i ~/.ssh/cli-keyPair Part1_install_apache.sh ubuntu@$web_ip:~/
-        ssh -i ~/.ssh/$keyname ubuntu@$web_ip 'bash -s' < Part1_install_apache.sh
-        sleep 10
-        break
-	fi
-	sleep 10
-done
+web_ip=$(aws ec2 describe-instances --instance-ids=$web_instance_id --query 'Reservations[].Instances[].PublicIpAddress' | grep -Eo "[0-9.]+")
+echo $web_public_dns
+echo $web_ip
+
+# web_instance_dns=$(echo $web_public_dns | tr -d '[" ]')
+# echo "Web instance dns: $web_instance_dns"
+
+
+scp -i ~/.ssh/cli-keyPair3 Part1_install_apache.sh ubuntu@$web_ip:~/
+
+ssh -i ~/.ssh/cli-keyPair3 ubuntu@$web_ip 'bash -s' < Part1_install_apache.sh
