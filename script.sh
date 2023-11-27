@@ -126,8 +126,8 @@ while true; do
 		web_ip=`aws ec2 describe-instances --instance-ids $web_instance_id --query "Reservations[0].Instances[0].PublicIpAddress" | grep -Eo "[0-9.]+"`
         echo "Web IP: $web_ip"
 
-        scp -i ~/.ssh/cli-keyPair Part1_install_apache.sh ubuntu@$web_ip:~/
-        ssh -i ~/.ssh/$keyname ubuntu@$web_ip 'bash -s' < Part1_install_apache.sh
+        scp -i ~/.ssh/cli-keyPair server.sh ubuntu@$web_ip:~/
+        ssh -i ~/.ssh/$keyname ubuntu@$web_ip 'bash -s' < server.sh
         sleep 10
         break
 	fi
