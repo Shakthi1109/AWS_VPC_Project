@@ -7,6 +7,12 @@ Artur KAZARIAN,
 Shakthivel MURUGAVEL, 
 Victorgabrielmendes SUNDERMANN
 
+Deliverables: 
+script.sh - Has VPC setup and its components (Part 1)
+server.sh - Has apache and snort installation (Part 2)
+
+
 To run .sh scripts:
+
 cd $DIRECTORY
-./<fileName.sh>
+./script.sh

@@ -127,8 +127,10 @@ while true; do
         echo "Web IP: $web_ip"
 
         scp -i ~/.ssh/cli-keyPair server.sh ubuntu@$web_ip:~/
-        ssh -i ~/.ssh/$keyname ubuntu@$web_ip 'bash -s' < server.sh
-        sleep 10
+        ssh -i ~/.ssh/cli-keyPair ubuntu@$web_ip 'bash -s' < server.sh
+
+        echo "Web IP: $web_ip"
+        sleep 3
         break
 	fi
 	sleep 10
