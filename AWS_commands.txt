@@ -1,0 +1,22 @@
+# ssh connection into Web Server
+ssh -i ~/.ssh/cli-keyPair ubuntu@<WEB_IP>
+
+# check snort logs
+cat /var/log/snort/snort.alert.fast
+tail -f /var/log/snort/snort.alert.fast
+
+#################
+##### DEBUG #####
+#################
+
+# check snort service
+sudo service snort start/stop/restart/status
+
+# check local rules
+cat /etc/snort/rules/local.rules
+
+# check process running 
+ps aux | grep -i "snort"
+
+# kill running process
+sudo kill <ID_PROCESS>

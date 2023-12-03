@@ -16,3 +16,7 @@ To run .sh scripts:
 
 cd $DIRECTORY
 ./script.sh
+
+
+GitHub: https://github.com/Shakthi1109/AWS_VPC_Project
+YouTube: https://youtu.be/oqNhdRzBkDs
